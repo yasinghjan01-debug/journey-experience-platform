@@ -1,0 +1,49 @@
+# Journey — Architecture Notes
+
+**Status:** Proposed architecture only. No production implementation exists yet.
+
+## Recommended initial stack
+
+- Next.js (App Router) + TypeScript
+- Tailwind CSS
+- PostgreSQL via Supabase
+- Supabase Auth and Storage
+- Server-side validation for all write operations
+- Vercel or equivalent deployment
+
+## Logical components
+
+1. **Presentation:** feed, search/discovery, experience detail, profiles, provider dashboard.
+2. **Identity and access:** authentication, user roles, ownership checks.
+3. **Domain services:** experience publishing, media metadata, follows, saves, enquiries, reports.
+4. **Persistence:** relational database with ownership and audit fields.
+5. **External integrations:** maps/geocoding initially; payments and ticketing only in a later phase.
+
+## Initial entities
+
+| Entity | Key fields (illustrative) |
+|---|---|
+| User | id, display_name, email, role, created_at |
+| Provider | id, owner_user_id, name, category, description, verification_status |
+| Experience | id, title, description, category, location, provider_id, status |
+| Post | id, author_user_id, experience_id, caption, visibility, created_at |
+| MediaAsset | id, post_id, storage_key, media_type, alt_text |
+| Follow | follower_user_id, followed_user_id |
+| SavedItem | user_id, target_type, target_id |
+| Enquiry | id, user_id, provider_id, experience_id, message, status |
+| Report | id, reporter_user_id, target_type, target_id, reason, status |
+
+The schema should be normalised and constraints added during implementation. Avoid storing sensitive personal data unless necessary.
+
+## Security baseline
+
+- Enforce ownership and role checks on the server.
+- Use row-level security where supported.
+- Validate and constrain uploaded file types and sizes.
+- Keep secrets in environment variables; never commit `.env`.
+- Rate-limit authentication, enquiry, and reporting endpoints.
+- Add moderation and abuse-reporting flows before public launch.
+
+## Architecture decision records to add
+
+As implementation begins, record material choices in `docs/adr/`, including database selection, media storage, search strategy, and verification workflow.
